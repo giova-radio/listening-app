@@ -41,9 +41,10 @@
   .back-link { display:inline-block; font-size:12.5px; color:var(--primary); font-weight:700; cursor:pointer; margin-bottom:6px; }
   .section-title { font-size:15px; font-weight:800; color:var(--ink); margin:0 0 12px; }
 
-  .top-tabs { display:flex; background:var(--bg); border-radius:14px; padding:4px; margin-bottom:14px; position:sticky; top:8px; z-index:5; }
-  .top-tab { flex:1; text-align:center; padding:11px; border-radius:11px; font-size:14px; font-weight:800; cursor:pointer; color:var(--ink-soft); border:none; background:transparent; }
-  .top-tab.active { background:#fff; color:var(--primary); box-shadow:0 1px 2px rgba(0,0,0,0.06); }
+  .top-tabs { display:flex; background:var(--bg); border-radius:14px; padding:4px; margin-bottom:14px; position:sticky; top:8px; z-index:5; gap:4px; }
+  .top-tab { flex:1; text-align:center; padding:11px; border-radius:11px; font-size:14px; font-weight:800; cursor:pointer; color:var(--ink-soft); border:none; background:transparent; position:relative; transition: background .15s ease, color .15s ease, box-shadow .15s ease; }
+  .top-tab.dict.active { background:var(--primary-soft); color:var(--primary); box-shadow:0 1px 3px rgba(43,37,96,0.12); }
+  .top-tab.shadow.active { background:var(--green-soft); color:var(--green-soft-text); box-shadow:0 1px 3px rgba(31,146,84,0.12); }
 
   header { text-align:center; margin-bottom: 10px; }
   header h1 { font-weight:800; font-size:18px; margin:0; letter-spacing:-0.01em; }
@@ -124,12 +125,17 @@
 
   .empty-msg { text-align:center; font-size:13px; color:var(--ink-soft); padding:30px 10px; }
 
-  .ov-row { display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-radius:14px; border:2px solid #D5CFBE; background:#fff; margin-bottom:10px; cursor:pointer; box-shadow: 0 2px 6px rgba(29,27,46,0.06); transition: transform .08s ease, box-shadow .15s ease, border-color .15s ease; }
-  .ov-row:hover { border-color: var(--primary); box-shadow: 0 3px 10px rgba(43,37,96,0.12); }
-  .ov-row:active { background: var(--bg); transform: scale(0.99); }
-  .ov-main { font-size:13.5px; font-weight:700; color:var(--ink); }
-  .ov-sub { font-size:11.5px; color:var(--ink-soft); margin-top:2px; font-weight:500; }
-  .ov-badge { font-size:11px; font-weight:700; padding:4px 9px; border-radius:999px; white-space:nowrap; margin-left:8px; }
+  .ov-list { display:grid; grid-template-columns: repeat(2, 1fr); gap:10px; }
+  .ov-row { position:relative; display:flex; flex-direction:column; justify-content:space-between; gap:10px; padding:16px 14px 12px; border-radius:12px; border:1.5px solid #E4DECE; background:#fff; margin-bottom:0; cursor:pointer; box-shadow: 0 2px 5px rgba(29,27,46,0.06); transition: transform .08s ease, box-shadow .15s ease, border-color .15s ease; min-height:88px; overflow:hidden; }
+  .ov-row::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background:var(--primary); }
+  .ov-row.shadow::before { background:var(--green-soft-text); }
+  .ov-row:hover { border-color:var(--primary); box-shadow: 0 4px 10px rgba(43,37,96,0.14); }
+  .ov-row.shadow:hover { border-color:var(--green-soft-text); box-shadow: 0 4px 10px rgba(31,146,84,0.14); }
+  .ov-row:active { transform: scale(0.98); }
+  .ov-row-body { display:flex; flex-direction:column; }
+  .ov-main { font-size:13px; font-weight:800; color:var(--ink); line-height:1.35; }
+  .ov-sub { font-size:11px; color:var(--ink-soft); margin-top:3px; font-weight:600; }
+  .ov-badge { align-self:flex-end; font-size:10.5px; font-weight:800; padding:3px 9px; border-radius:999px; white-space:nowrap; margin-left:0; letter-spacing:0.02em; }
   .ov-badge.pass { background:var(--green-soft); color:var(--green-soft-text); }
   .ov-badge.notyet { background:var(--bg); color:var(--ink-soft); }
   .ov-back { font-size:12.5px; color:var(--primary); font-weight:700; cursor:pointer; margin-bottom:12px; display:inline-block; }
@@ -140,12 +146,15 @@
   .ov-q-grid { display:grid; gap:8px; }
   .ov-q-grid.dict { grid-template-columns: repeat(4, 1fr); }
   .ov-q-grid.shadow { grid-template-columns: repeat(2, 1fr); }
-  .ov-q-cell { position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:14px 8px; border-radius:12px; border:1.5px solid var(--border); background:#fff; cursor:pointer; text-align:center; min-height:56px; box-shadow:0 1px 3px rgba(29,27,46,0.04); transition: transform .08s ease, border-color .15s ease, background .15s ease; }
-  .ov-q-cell:hover { border-color: var(--primary); }
-  .ov-q-cell:active { background: var(--bg); transform: scale(0.97); }
-  .ov-q-num { font-size:14px; font-weight:800; color:var(--ink); }
+  .ov-q-cell { position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:14px 8px; border-radius:10px; border:1.5px solid #E4DECE; background:#fff; cursor:pointer; text-align:center; min-height:56px; box-shadow:0 1px 3px rgba(29,27,46,0.05); transition: transform .08s ease, box-shadow .15s ease, border-color .15s ease; overflow:hidden; }
+  .ov-q-cell::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--primary); }
+  .ov-q-cell:hover { border-color:var(--primary); box-shadow: 0 3px 8px rgba(43,37,96,0.14); }
+  .ov-q-cell:active { transform: scale(0.97); }
+  .ov-q-num { font-size:14px; font-weight:800; color:var(--primary); }
   .ov-q-cell.shadow { align-items:flex-start; text-align:left; padding:12px 12px; min-height:64px; }
-  .ov-q-label { font-size:11px; font-weight:700; color:var(--primary); letter-spacing:0.02em; }
+  .ov-q-cell.shadow::before { background:var(--green-soft-text); }
+  .ov-q-cell.shadow:hover { border-color:var(--green-soft-text); box-shadow: 0 3px 8px rgba(31,146,84,0.16); }
+  .ov-q-label { font-size:11px; font-weight:800; color:var(--green-soft-text); letter-spacing:0.02em; }
   .ov-q-title { font-size:12.5px; font-weight:700; color:var(--ink); margin-top:3px; line-height:1.35; }
   .ov-q-cell .ov-q-icons { position:absolute; top:6px; right:8px; font-size:11px; }
   .ov-q-cell.shadow .ov-q-icons { position:static; margin-top:6px; align-self:flex-end; }
@@ -262,8 +271,8 @@
 
   <div id="listView" style="display:none;">
     <div class="top-tabs">
-      <button class="top-tab active" id="tabDictation">音トレ</button>
-      <button class="top-tab" id="tabShadowing">意味トレ</button>
+      <button class="top-tab dict active" id="tabDictation">音トレ</button>
+      <button class="top-tab shadow" id="tabShadowing">意味トレ</button>
     </div>
     <div id="mainListBody"></div>
     <span class="logout-link" id="logoutBtn">ログアウト</span>
@@ -952,36 +961,38 @@ function resetPlayback(){
 // ---------- main list rendering (Level一覧 / Phase一覧) ----------
 function renderMainListDict(){
   const passed = loadSet('passedLevels');
-  let htmlStr = '';
+  let htmlStr = '<div class="ov-list">';
   LEVELS.forEach((lv, idx)=>{
     const completed = loadSet('completed_L'+lv.level);
     const isPassed = passed.has(lv.level);
     htmlStr += `<div class="ov-row" data-idx="${idx}">
-      <div>
+      <div class="ov-row-body">
         <div class="ov-main">${lv.title}</div>
-        <div class="ov-sub">練習 ${completed.size} / ${lv.practice.length} 完了</div>
+        <div class="ov-sub">練習 ${completed.size} / ${lv.practice.length}</div>
       </div>
       <span class="ov-badge ${isPassed?'pass':'notyet'}">${isPassed?'✓ 合格':'未合格'}</span>
     </div>`;
   });
+  htmlStr += '</div>';
   mainListBody.innerHTML = htmlStr;
   mainListBody.querySelectorAll('.ov-row').forEach(row=>{
     row.addEventListener('click', ()=> openQuestionList('dict', parseInt(row.dataset.idx,10)));
   });
 }
 function renderMainListShadow(){
-  let htmlStr = '';
+  let htmlStr = '<div class="ov-list">';
   PHASES.forEach((p, idx)=>{
     const completed = loadSet('shadow_completed_P'+p.phase);
     const passed = loadBool('shadow_passed_P'+p.phase);
-    htmlStr += `<div class="ov-row" data-idx="${idx}">
-      <div>
+    htmlStr += `<div class="ov-row shadow" data-idx="${idx}">
+      <div class="ov-row-body">
         <div class="ov-main">${p.title}</div>
-        <div class="ov-sub">練習 ${completed.size} / ${p.practice.length} 完了</div>
+        <div class="ov-sub">練習 ${completed.size} / ${p.practice.length}</div>
       </div>
       <span class="ov-badge ${passed?'pass':'notyet'}">${passed?'✓ 合格':'未合格'}</span>
     </div>`;
   });
+  htmlStr += '</div>';
   mainListBody.innerHTML = htmlStr;
   mainListBody.querySelectorAll('.ov-row').forEach(row=>{
     row.addEventListener('click', ()=> openQuestionList('shadow', parseInt(row.dataset.idx,10)));
