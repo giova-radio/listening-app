@@ -294,7 +294,6 @@
 
     <div class="mode-row">
       <button class="mode-btn active" id="modePracticeBtn">練習</button>
-      <button class="mode-btn" id="modeCheckBtn">チェック</button>
       <button class="mode-btn" id="modeWeakBtn">苦手</button>
     </div>
 
@@ -374,7 +373,7 @@
         <div class="result-score" id="resultScore">8 / 10</div>
         <div class="result-msg" id="resultMsg"></div>
         <div class="result-actions">
-          <button class="btn-secondary" id="resultRetryBtn">練習に戻る</button>
+          <button class="btn-secondary" id="resultRetryBtn">一覧に戻る</button>
           <button class="btn-primary" id="resultNextBtn">次のLevelへ</button>
         </div>
       </div>
@@ -505,7 +504,7 @@
         <div class="result-score" id="shadowResultScore">4 / 5</div>
         <div class="result-msg" id="shadowResultMsg"></div>
         <div class="result-actions">
-          <button class="btn-secondary" id="shadowResultRetryBtn">練習に戻る</button>
+          <button class="btn-secondary" id="shadowResultRetryBtn">一覧に戻る</button>
         </div>
       </div>
     </div>
@@ -752,7 +751,6 @@ const dictationSection = document.getElementById('dictationSection');
 const shadowingSection = document.getElementById('shadowingSection');
 
 const modePracticeBtn = document.getElementById('modePracticeBtn');
-const modeCheckBtn = document.getElementById('modeCheckBtn');
 const modeWeakBtn = document.getElementById('modeWeakBtn');
 const practiceView = document.getElementById('practiceView');
 const checkIntroView = document.getElementById('checkIntroView');
@@ -885,6 +883,7 @@ function renderDictQuestionList(){
   const lv = currentLevel();
   const completed = loadSet('completed_L'+lv.level);
   const weak = loadSet('weak_L'+lv.level);
+  const passed = loadSet('passedLevels').has(lv.level);
   let htmlStr = '<div class="ov-q-grid dict">';
   lv.practice.forEach((q,i)=>{
     const icons = (completed.has(i)?'<span class="ov-q-icons">✓</span>':'') + (weak.has(i)?'<span class="ov-q-icons">🚩</span>':'');
@@ -894,9 +893,18 @@ function renderDictQuestionList(){
     </div>`;
   });
   htmlStr += '</div>';
+  // チェックカード (グリッド外・全幅、意味トレのチェックカードと同じ緑スタイル)
+  htmlStr += `<div class="ov-q-cell shadow check dict-check" data-check="1" style="margin-top:10px;">
+    <span class="ov-q-label">Level${lv.level} チェックテスト</span>
+    <span class="ov-q-title">${passed ? '✓ 合格済' : 'ランダム10問・8問正解で合格'}</span>
+  </div>`;
   qlBody.innerHTML = htmlStr;
   qlBody.querySelectorAll('.ov-q-cell').forEach(row=>{
-    row.addEventListener('click', ()=> enterDictPracticeAt(parseInt(row.dataset.idx,10)));
+    if (row.dataset.check === '1'){
+      row.addEventListener('click', ()=> enterDictCheck());
+    } else {
+      row.addEventListener('click', ()=> enterDictPracticeAt(parseInt(row.dataset.idx,10)));
+    }
   });
 }
 function renderShadowQuestionList(){
@@ -939,8 +947,15 @@ function enterDictPracticeAt(i){
   mode = 'practice';
   practiceView.style.display='block';
   checkIntroView.style.display='none'; checkView.style.display='none'; weakView.style.display='none'; resultView.style.display='none';
-  modePracticeBtn.classList.add('active'); modeCheckBtn.classList.remove('active'); modeWeakBtn.classList.remove('active');
+  modePracticeBtn.classList.add('active'); modeWeakBtn.classList.remove('active');
   updatePracticeUI();
+}
+function enterDictCheck(){
+  questionListView.style.display='none'; listView.style.display='none'; shadowingSection.style.display='none';
+  dictationSection.style.display='block';
+  appNameLabel.textContent = '音トレ';
+  dictSectionTitle.textContent = currentLevel().title + ' チェックテスト';
+  switchMode('check');
 }
 function enterShadowPracticeAt(i){
   questionListView.style.display='none'; listView.style.display='none'; dictationSection.style.display='none';
@@ -1269,7 +1284,7 @@ function showResult(){
     resultNextBtn.style.display = 'none';
   }
 }
-resultRetryBtn.addEventListener('click', ()=> switchMode('practice'));
+resultRetryBtn.addEventListener('click', ()=> openQuestionList('dict', currentLevelIdx));
 resultNextBtn.addEventListener('click', ()=>{
   const nextIdx = LEVELS.findIndex(l=>l.level===currentLevel().level+1);
   if (nextIdx!==-1) currentLevelIdx = nextIdx;
@@ -1326,13 +1341,11 @@ function switchMode(newMode){
   checkView.style.display='none'; resultView.style.display='none';
   weakView.style.display = newMode==='weak' ? 'block':'none';
   modePracticeBtn.classList.toggle('active', newMode==='practice');
-  modeCheckBtn.classList.toggle('active', newMode==='check');
   modeWeakBtn.classList.toggle('active', newMode==='weak');
   if (newMode==='practice'){ practiceIndex=0; updatePracticeUI(); }
   else if (newMode==='weak'){ renderWeakView(); }
 }
 modePracticeBtn.addEventListener('click', ()=> switchMode('practice'));
-modeCheckBtn.addEventListener('click', ()=> switchMode('check'));
 modeWeakBtn.addEventListener('click', ()=> switchMode('weak'));
 
 // ---------- shadowing ----------
@@ -1421,7 +1434,7 @@ function showShadowResult(){
   if (pass) saveBool('shadow_passed_P'+currentPhase().phase, true);
   shadowResultMsg.textContent = pass ? '合格です！このPhaseはよく身についています。' : '4問に届きませんでした。練習に戻ってもう一度チャレンジしましょう。';
 }
-shadowResultRetryBtn.addEventListener('click', ()=> switchShadowMode('practice'));
+shadowResultRetryBtn.addEventListener('click', ()=> openQuestionList('shadow', currentPhaseIdx));
 
 // チャンクは教材データ側で事前に定義された区切り(q.chunks)をそのまま使う
 function shadowChunksFlat(q){
