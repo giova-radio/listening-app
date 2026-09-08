@@ -1224,17 +1224,26 @@ function speakTTS(text, isMain, btn, sIdx){
   if (isMain){ utter.onend=()=>{ isSpeaking=false; isPaused=false; btn.textContent='▶'; }; isSpeaking=true; isPaused=false; btn.textContent='❚❚'; }
   speechSynthesis.speak(utter);
 }
+function playDictItem(q, btn, sIdx, onEnd){
+  if (q && q.audioUrl){
+    playAudioFull(q.audioUrl, sIdx, btn, onEnd);
+  } else {
+    activeEngine = 'tts';
+    speakTTS(q.en, true, btn, sIdx);
+  }
+}
 playBtn.addEventListener('click', ()=>{
-  if (!isSpeaking){ speechSynthesis.cancel(); speakTTS(currentLevel().practice[practiceIndex].en, true, playBtn, speedIndex); }
-  else if (!isPaused){ speechSynthesis.pause(); isPaused=true; playBtn.textContent='▶'; }
-  else { speechSynthesis.resume(); isPaused=false; playBtn.textContent='❚❚'; }
+  if (!isSpeaking){ resetPlayback(); playDictItem(currentLevel().practice[practiceIndex], playBtn, speedIndex); }
+  else togglePauseResume(playBtn);
 });
 dictRevealBtn.addEventListener('click', ()=> dictAnswerBox.classList.toggle('show'));
 
 const overlapPlayBtn = document.getElementById('overlapPlayBtn');
 overlapPlayBtn.addEventListener('click', ()=>{
-  speechSynthesis.cancel();
-  speakTTS(currentLevel().practice[practiceIndex].en, false, overlapPlayBtn, speedIndex);
+  resetPlayback();
+  const q = currentLevel().practice[practiceIndex];
+  if (q.audioUrl){ playAudioFull(q.audioUrl, speedIndex, overlapPlayBtn); }
+  else { activeEngine='tts'; speakTTS(q.en, false, overlapPlayBtn, speedIndex); }
 });
 
 prevBtn.addEventListener('click', ()=>{ practiceIndex=(practiceIndex-1+currentLevel().practice.length)%currentLevel().practice.length; updatePracticeUI(); });
@@ -1257,9 +1266,8 @@ function updateCheckUI(){
   gradeCorrectBtn.classList.remove('active'); gradeWrongBtn.classList.remove('active');
 }
 checkPlayBtn.addEventListener('click', ()=>{
-  if (!isSpeaking){ speechSynthesis.cancel(); speakTTS(checkQuestions[checkIndex].en, true, checkPlayBtn, checkSpeedIndex); }
-  else if (!isPaused){ speechSynthesis.pause(); isPaused=true; checkPlayBtn.textContent='▶'; }
-  else { speechSynthesis.resume(); isPaused=false; checkPlayBtn.textContent='❚❚'; }
+  if (!isSpeaking){ resetPlayback(); playDictItem(checkQuestions[checkIndex], checkPlayBtn, checkSpeedIndex); }
+  else togglePauseResume(checkPlayBtn);
 });
 checkRevealBtn.addEventListener('click', ()=> checkAnswerBox.classList.toggle('show'));
 function gradeAndNext(ok){
@@ -1296,7 +1304,10 @@ function buildWeakList(){
   const list = [];
   LEVELS.forEach(lv=>{
     const s = loadSet('weak_L'+lv.level);
-    s.forEach(i=>{ if (lv.practice[i]) list.push({level:lv.level, idx:i, en:lv.practice[i].en, ja:lv.practice[i].ja}); });
+    s.forEach(i=>{
+      const p = lv.practice[i];
+      if (p) list.push({level:lv.level, idx:i, en:p.en, ja:p.ja, audioUrl:p.audioUrl});
+    });
   });
   return list;
 }
@@ -1321,9 +1332,8 @@ function renderWeakView(){
     <div class="action-row"><button class="action-btn weak done" id="weakUnmarkBtn">🚩 苦手を解除</button></div>
   `;
   document.getElementById('weakPlayBtn').addEventListener('click', (e)=>{
-    if (!isSpeaking){ speechSynthesis.cancel(); speakTTS(weakList[weakIdx].en, true, e.target, 0); }
-    else if (!isPaused){ speechSynthesis.pause(); isPaused=true; e.target.textContent='▶'; }
-    else { speechSynthesis.resume(); isPaused=false; e.target.textContent='❚❚'; }
+    if (!isSpeaking){ resetPlayback(); playDictItem(weakList[weakIdx], e.target, speedIndex); }
+    else togglePauseResume(e.target);
   });
   document.getElementById('weakRevealBtn').addEventListener('click', ()=> document.getElementById('weakAnswerBox').classList.toggle('show'));
   document.getElementById('weakPrevBtn').addEventListener('click', ()=>{ weakIdx=(weakIdx-1+weakList.length)%weakList.length; renderWeakView(); });
