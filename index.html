@@ -1254,6 +1254,10 @@ function updatePracticeUI(){
   dictAnswerEn.textContent = q.en; dictAnswerJa.textContent = q.ja;
   renderSegmentButtons(q.en);
   renderCompleteWeakBtns();
+  // 問題を切り替えるたびに速度を x1.0 (index 2) に戻す
+  speedIndex = 2;
+  speedSlider.value = 2;
+  speedOut.textContent = 'x' + speedPresets[2].toFixed(1);
 }
 function speakTTS(text, isMain, btn, sIdx){
   const utter = new SpeechSynthesisUtterance(text);
